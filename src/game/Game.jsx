@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import Cell from './Cell.jsx'
 import StartMenu from './StartMenu.jsx'
 import PowerupBar from './PowerupBar.jsx'
-import { HUMAN, AI, dropDisc, checkWin, checkWinFull, checkDraw, removeDisk, placeDiscAt } from './gameLogic.js'
+import AIChat from './AIChat.jsx'
+import { HUMAN, AI, dropDisc, checkWin, checkWinFull, checkDraw, removeDisk, placeDiscAt, getMaxLineAt } from './gameLogic.js'
 import { getBestMove, getAIPowerupAction } from './ai.js'
 import { SIZE_PRESETS, INITIAL_POWERUPS } from './constants.js'
+import { pickLine } from './aiDialogue.js'
 
 function makeBoard(sizeKey) {
   const { rows, cols } = SIZE_PRESETS[sizeKey]
@@ -25,6 +27,25 @@ export default function Game() {
   const [humanPowerups, setHumanPowerups] = useState({ ...INITIAL_POWERUPS })
   const [aiPowerups, setAiPowerups] = useState({ ...INITIAL_POWERUPS })
   const [activePowerup, setActivePowerup] = useState(null)
+  const [aiMessage, setAiMessage] = useState(null) // { text, key }
+
+  // Auto-clear dialogue after 4.5s (matches CSS animation)
+  useEffect(() => {
+    if (!aiMessage) return
+    const t = setTimeout(() => setAiMessage(null), 4500)
+    return () => clearTimeout(t)
+  }, [aiMessage?.key])
+
+  // Greeting when the game screen first appears
+  useEffect(() => {
+    if (screen !== 'game') return
+    const t = setTimeout(() => setAiMessage({ text: pickLine('greeting'), key: Date.now() }), 700)
+    return () => clearTimeout(t)
+  }, [screen])
+
+  function showAIMessage(category) {
+    setAiMessage({ text: pickLine(category), key: Date.now() })
+  }
 
   useEffect(() => {
     if (currentPlayer !== AI || gameStatus !== 'playing') return
@@ -38,6 +59,7 @@ export default function Game() {
           setAiPowerups(p => ({ ...p, [action.type]: p[action.type] - 1 }))
 
           if (action.type === 'bomb') {
+            showAIMessage('aiUsedBomb')
             const newBoard = removeDisk(board, action.row, action.col)
             setLastMove(null)
             endTurn(newBoard, true)
@@ -45,9 +67,11 @@ export default function Game() {
           }
 
           if (action.type === 'snipe') {
+            showAIMessage('aiUsedSnipe')
             const newBoard = placeDiscAt(board, action.row, action.col, AI)
             setLastMove({ row: action.row, col: action.col })
             if (checkWin(newBoard, action.row, action.col, AI)) {
+              showAIMessage('aiWins')
               setBoard(newBoard); setGameStatus('win'); setWinner(AI)
               setIsAIThinking(false); return
             }
@@ -56,9 +80,11 @@ export default function Game() {
           }
 
           if (action.type === 'strike') {
+            showAIMessage('aiUsedStrike')
             const r1 = dropDisc(board, action.col, AI)
             if (r1) {
               if (checkWin(r1.newBoard, r1.row, action.col, AI)) {
+                showAIMessage('aiWins')
                 setLastMove({ row: r1.row, col: action.col })
                 setBoard(r1.newBoard); setGameStatus('win'); setWinner(AI)
                 setIsAIThinking(false); return
@@ -67,6 +93,7 @@ export default function Game() {
               const finalBoard = r2 ? r2.newBoard : r1.newBoard
               setLastMove({ row: (r2 ?? r1).row, col: action.col })
               if (r2 && checkWin(finalBoard, r2.row, action.col, AI)) {
+                showAIMessage('aiWins')
                 setBoard(finalBoard); setGameStatus('win'); setWinner(AI)
                 setIsAIThinking(false); return
               }
@@ -82,29 +109,42 @@ export default function Game() {
       const result = dropDisc(board, bestCol, AI)
       if (!result) { setIsAIThinking(false); return }
       setLastMove({ row: result.row, col: bestCol })
+
       if (checkWin(result.newBoard, result.row, bestCol, AI)) {
+        showAIMessage('aiWins')
         setBoard(result.newBoard); setGameStatus('win'); setWinner(AI)
         setIsAIThinking(false); return
       }
+
+      // Contextual post-move comment
+      const lineLen = getMaxLineAt(result.newBoard, result.row, bestCol, AI)
+      if (lineLen >= 3 && Math.random() < 0.65) {
+        showAIMessage('aiWinning')
+      } else if (Math.random() < 0.28) {
+        showAIMessage('aiMoveTaunt')
+      }
+
       endTurn(result.newBoard, false)
     }, 600)
 
     return () => clearTimeout(timer)
   }, [currentPlayer, gameStatus, board, difficulty, powerupsEnabled, aiPowerups])
 
-  // Shared end-of-turn logic: check draw, switch to human, or do full-board win scan (after bomb)
   function endTurn(newBoard, needsFullWinCheck) {
     if (needsFullWinCheck) {
       if (checkWinFull(newBoard, HUMAN)) {
+        showAIMessage('humanWins')
         setBoard(newBoard); setGameStatus('win'); setWinner(HUMAN)
         setIsAIThinking(false); return
       }
       if (checkWinFull(newBoard, AI)) {
+        showAIMessage('aiWins')
         setBoard(newBoard); setGameStatus('win'); setWinner(AI)
         setIsAIThinking(false); return
       }
     }
     if (checkDraw(newBoard)) {
+      showAIMessage('draw')
       setBoard(newBoard); setGameStatus('draw')
     } else {
       setBoard(newBoard); setCurrentPlayer(HUMAN)
@@ -120,6 +160,7 @@ export default function Game() {
     setIsAIThinking(false)
     setLastMove(null)
     setActivePowerup(null)
+    setAiMessage(null)
     setHumanPowerups({ ...INITIAL_POWERUPS })
     setAiPowerups({ ...INITIAL_POWERUPS })
   }
@@ -129,7 +170,6 @@ export default function Game() {
   function handleBackToMenu() { resetGame(); setScreen('menu') }
   function handleBoardSizeChange(key) { setBoardSizeKey(key); resetGame(key) }
 
-  // Human column click: normal drop or strike
   function handleColumnClick(col) {
     if (isAIThinking || gameStatus === 'win' || gameStatus === 'draw') return
     if (currentPlayer !== HUMAN) return
@@ -140,6 +180,7 @@ export default function Game() {
       if (!r1) return
       setHumanPowerups(p => ({ ...p, strike: p.strike - 1 }))
       setActivePowerup(null)
+      if (Math.random() < 0.6) showAIMessage('humanUsedPowerup')
       if (checkWin(r1.newBoard, r1.row, col, HUMAN)) {
         setLastMove({ row: r1.row, col })
         setBoard(r1.newBoard); setGameStatus('win'); setWinner(HUMAN); return
@@ -148,9 +189,11 @@ export default function Game() {
       const finalBoard = r2 ? r2.newBoard : r1.newBoard
       setLastMove({ row: (r2 ?? r1).row, col })
       if (r2 && checkWin(finalBoard, r2.row, col, HUMAN)) {
+        showAIMessage('humanWins')
         setBoard(finalBoard); setGameStatus('win'); setWinner(HUMAN); return
       }
       if (checkDraw(finalBoard)) {
+        showAIMessage('draw')
         setBoard(finalBoard); setGameStatus('draw')
       } else {
         setBoard(finalBoard); setGameStatus('playing'); setCurrentPlayer(AI)
@@ -162,16 +205,21 @@ export default function Game() {
     const result = dropDisc(board, col, HUMAN)
     if (!result) return
     setLastMove({ row: result.row, col })
+
     if (checkWin(result.newBoard, result.row, col, HUMAN)) {
+      showAIMessage('humanWins')
       setBoard(result.newBoard); setGameStatus('win'); setWinner(HUMAN)
     } else if (checkDraw(result.newBoard)) {
+      showAIMessage('draw')
       setBoard(result.newBoard); setGameStatus('draw')
     } else {
+      // React to a threatening human move
+      const lineLen = getMaxLineAt(result.newBoard, result.row, col, HUMAN)
+      if (lineLen >= 3 && Math.random() < 0.65) showAIMessage('humanThreat')
       setBoard(result.newBoard); setGameStatus('playing'); setCurrentPlayer(AI)
     }
   }
 
-  // Human cell click: bomb removes a disc, snipe places anywhere
   function handleCellClick(row, col) {
     if (isAIThinking || gameStatus === 'win' || gameStatus === 'draw') return
     if (currentPlayer !== HUMAN) return
@@ -181,14 +229,17 @@ export default function Game() {
       setHumanPowerups(p => ({ ...p, bomb: p.bomb - 1 }))
       setActivePowerup(null)
       setLastMove(null)
-      // Full scan needed — gravity can create new lines
+      if (Math.random() < 0.6) showAIMessage('humanUsedPowerup')
       if (checkWinFull(newBoard, HUMAN)) {
+        showAIMessage('humanWins')
         setBoard(newBoard); setGameStatus('win'); setWinner(HUMAN); return
       }
       if (checkWinFull(newBoard, AI)) {
+        showAIMessage('aiWins')
         setBoard(newBoard); setGameStatus('win'); setWinner(AI); return
       }
       if (checkDraw(newBoard)) {
+        showAIMessage('draw')
         setBoard(newBoard); setGameStatus('draw')
       } else {
         setBoard(newBoard); setGameStatus('playing'); setCurrentPlayer(AI)
@@ -201,9 +252,12 @@ export default function Game() {
       setHumanPowerups(p => ({ ...p, snipe: p.snipe - 1 }))
       setActivePowerup(null)
       setLastMove({ row, col })
+      if (Math.random() < 0.6) showAIMessage('humanUsedPowerup')
       if (checkWin(newBoard, row, col, HUMAN)) {
+        showAIMessage('humanWins')
         setBoard(newBoard); setGameStatus('win'); setWinner(HUMAN)
       } else if (checkDraw(newBoard)) {
+        showAIMessage('draw')
         setBoard(newBoard); setGameStatus('draw')
       } else {
         setBoard(newBoard); setGameStatus('playing'); setCurrentPlayer(AI)
@@ -281,6 +335,10 @@ export default function Game() {
       </div>
 
       <div className={statusClass}>{statusText}</div>
+
+      <div className="ai-chat-area">
+        {aiMessage && <AIChat key={aiMessage.key} text={aiMessage.text} />}
+      </div>
 
       {powerupsEnabled && !isOver && (
         <PowerupBar

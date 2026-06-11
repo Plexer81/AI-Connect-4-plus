@@ -483,6 +483,71 @@ button:hover {
   transform: translateY(-1px);
 }
 
+/* ── AI Chat Bubble ── */
+
+.ai-chat-area {
+  width: 100%;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+.ai-chat {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  animation: chatLifecycle 4.5s ease forwards;
+  max-width: 100%;
+}
+
+@keyframes chatLifecycle {
+  0%   { opacity: 0; transform: translateY(-5px); }
+  9%   { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.ai-chat-avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1.5px solid var(--ai);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+}
+
+.ai-chat-bubble {
+  background: var(--card);
+  border: 1px solid var(--board-border);
+  border-radius: 12px;
+  border-top-left-radius: 3px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text);
+  opacity: 0.92;
+  position: relative;
+}
+
+.ai-chat-bubble::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  background: var(--card);
+  border-left: 1px solid var(--board-border);
+  border-bottom: 1px solid var(--board-border);
+  transform: rotate(45deg);
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
 /* ── Power-up toggle (start menu) ── */
 
 .toggle-btn {
