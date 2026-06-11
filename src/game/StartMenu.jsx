@@ -20,7 +20,14 @@ export default function StartMenu({
 
       <div className="menu-section">
         <p className="menu-section-label">Difficulty</p>
-        <div className="diff-cards">
+        <div className="diff-cards diff-cards--wrap">
+          <button
+            className={`diff-card${difficulty === 'beginner' ? ' diff-card--active' : ''}`}
+            onClick={() => onDifficultyChange('beginner')}
+          >
+            <span className="diff-card-name">Beginner</span>
+            <span className="diff-card-desc">Mostly random</span>
+          </button>
           <button
             className={`diff-card${difficulty === 'easy' ? ' diff-card--active' : ''}`}
             onClick={() => onDifficultyChange('easy')}
@@ -35,12 +42,26 @@ export default function StartMenu({
             <span className="diff-card-name">Medium</span>
             <span className="diff-card-desc">Solid opponent</span>
           </button>
+          <button
+            className={`diff-card${difficulty === 'hard' ? ' diff-card--active' : ''}`}
+            onClick={() => onDifficultyChange('hard')}
+          >
+            <span className="diff-card-name">Hard</span>
+            <span className="diff-card-desc">Plays near-perfect</span>
+          </button>
+          <button
+            className={`diff-card diff-card--impossible${difficulty === 'impossible' ? ' diff-card--active' : ''}`}
+            onClick={() => onDifficultyChange('impossible')}
+          >
+            <span className="diff-card-name">Impossible</span>
+            <span className="diff-card-desc">You will not win</span>
+          </button>
         </div>
       </div>
 
       <div className="menu-section">
         <p className="menu-section-label">Board Size</p>
-        <div className="diff-cards">
+        <div className="diff-cards diff-cards--wrap">
           {Object.entries(SIZE_PRESETS).map(([key, preset]) => (
             <button
               key={key}

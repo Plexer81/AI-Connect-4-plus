@@ -4,10 +4,10 @@
   --text: #eef2ff;
   --accent: #63b3ff;
 
-  --human: #ef4444;
-  --human-glow: #f87171;
-  --ai: #22d3ee;
-  --ai-glow: #67e8f9;
+  --human: #f97316;
+  --human-glow: #fb923c;
+  --ai: #22c55e;
+  --ai-glow: #4ade80;
   --board-bg: #0f2050;
   --board-border: #1e3a6e;
   --cell-empty: #0b1830;
@@ -83,14 +83,14 @@ button:hover {
 }
 
 .menu-disc--human {
-  background: radial-gradient(circle at 35% 35%, #f87171, #ef4444);
-  box-shadow: 0 0 22px 6px rgba(239, 68, 68, 0.45);
+  background: radial-gradient(circle at 35% 35%, #fb923c, #f97316);
+  box-shadow: 0 0 22px 6px rgba(249, 115, 22, 0.45);
   animation: menuFloat 2.6s ease-in-out infinite;
 }
 
 .menu-disc--ai {
-  background: radial-gradient(circle at 35% 35%, #67e8f9, #22d3ee);
-  box-shadow: 0 0 22px 6px rgba(34, 211, 238, 0.4);
+  background: radial-gradient(circle at 35% 35%, #4ade80, #22c55e);
+  box-shadow: 0 0 22px 6px rgba(34, 197, 94, 0.4);
   animation: menuFloat 2.6s ease-in-out infinite reverse;
 }
 
@@ -133,6 +133,14 @@ button:hover {
   width: 100%;
 }
 
+.diff-cards--wrap {
+  flex-wrap: wrap;
+}
+
+.diff-cards--wrap .diff-card {
+  flex: 1 1 calc(50% - 0.4375rem);
+}
+
 .diff-card {
   flex: 1;
   padding: 1rem 1.125rem;
@@ -159,6 +167,16 @@ button:hover {
   background: rgba(99, 179, 255, 0.07);
 }
 
+.diff-card--impossible {
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+.diff-card--impossible.diff-card--active {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
 .diff-card-name {
   font-size: 1rem;
   font-weight: 600;
@@ -176,18 +194,18 @@ button:hover {
   font-weight: 600;
   letter-spacing: 0.04em;
   border-radius: 14px;
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  background: linear-gradient(135deg, #f97316, #c2410c);
   color: white;
   border: none;
   cursor: pointer;
-  box-shadow: 0 0 24px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 24px rgba(249, 115, 22, 0.35);
   transition: transform 0.15s, box-shadow 0.15s;
   margin-top: 0.25rem;
 }
 
 .play-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 36px rgba(239, 68, 68, 0.52);
+  box-shadow: 0 0 36px rgba(249, 115, 22, 0.52);
 }
 
 .play-btn--sm {
@@ -357,13 +375,13 @@ button:hover {
 }
 
 .cell--human {
-  background: radial-gradient(circle at 35% 35%, #f87171, #ef4444);
-  box-shadow: 0 0 14px 4px rgba(239, 68, 68, 0.65);
+  background: radial-gradient(circle at 35% 35%, #fb923c, #f97316);
+  box-shadow: 0 0 14px 4px rgba(249, 115, 22, 0.65);
 }
 
 .cell--ai {
-  background: radial-gradient(circle at 35% 35%, #67e8f9, #22d3ee);
-  box-shadow: 0 0 14px 4px rgba(34, 211, 238, 0.6);
+  background: radial-gradient(circle at 35% 35%, #4ade80, #22c55e);
+  box-shadow: 0 0 14px 4px rgba(34, 197, 94, 0.6);
 }
 
 /* ── Drop animation ── */
@@ -430,13 +448,13 @@ button:hover {
 .result-disc:nth-child(4) { animation-delay: 0.18s; }
 
 .result-disc-row--human .result-disc {
-  background: radial-gradient(circle at 35% 35%, #f87171, #ef4444);
-  box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.6);
+  background: radial-gradient(circle at 35% 35%, #fb923c, #f97316);
+  box-shadow: 0 0 14px 3px rgba(249, 115, 22, 0.6);
 }
 
 .result-disc-row--ai .result-disc {
-  background: radial-gradient(circle at 35% 35%, #67e8f9, #22d3ee);
-  box-shadow: 0 0 14px 3px rgba(34, 211, 238, 0.55);
+  background: radial-gradient(circle at 35% 35%, #4ade80, #22c55e);
+  box-shadow: 0 0 14px 3px rgba(34, 197, 94, 0.55);
 }
 
 @keyframes resultPop {
@@ -512,13 +530,13 @@ button:hover {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(34, 211, 238, 0.1);
+  background: rgba(34, 197, 94, 0.1);
   border: 1.5px solid var(--ai);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
 }
 
 .ai-chat-bubble {
@@ -705,13 +723,13 @@ button:hover {
 }
 
 @keyframes hlPulseBomb {
-  from { box-shadow: 0 0 6px 2px rgba(239, 68, 68, 0.4); outline: 2px solid rgba(239,68,68,0.5); outline-offset: -2px; }
-  to   { box-shadow: 0 0 18px 5px rgba(239, 68, 68, 0.8); outline: 2px solid rgba(239,68,68,1); outline-offset: -2px; }
+  from { box-shadow: 0 0 6px 2px rgba(249, 115, 22, 0.4); outline: 2px solid rgba(249,115,22,0.5); outline-offset: -2px; }
+  to   { box-shadow: 0 0 18px 5px rgba(249, 115, 22, 0.8); outline: 2px solid rgba(249,115,22,1); outline-offset: -2px; }
 }
 
 @keyframes hlPulseSnipe {
-  from { box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), 0 0 6px 2px rgba(34,211,238,0.3); outline: 2px dashed rgba(34,211,238,0.5); outline-offset: -2px; }
-  to   { box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), 0 0 16px 4px rgba(34,211,238,0.7); outline: 2px dashed rgba(34,211,238,1); outline-offset: -2px; }
+  from { box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), 0 0 6px 2px rgba(34,197,94,0.3); outline: 2px dashed rgba(34,197,94,0.5); outline-offset: -2px; }
+  to   { box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), 0 0 16px 4px rgba(34,197,94,0.7); outline: 2px dashed rgba(34,197,94,1); outline-offset: -2px; }
 }
 
 /* ── Status bar powerup mode ── */

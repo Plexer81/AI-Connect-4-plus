@@ -5,8 +5,11 @@ import {
 } from './gameLogic.js'
 
 const DIFFICULTY = {
-  easy:   { depth: 2, noise: 0.4 },
-  medium: { depth: 4, noise: 0.0 },
+  beginner:   { depth: 1, noise: 0.75 },
+  easy:       { depth: 2, noise: 0.4 },
+  medium:     { depth: 4, noise: 0.0 },
+  hard:       { depth: 6, noise: 0.0 },
+  impossible: { depth: 9, noise: 0.0 },
 }
 
 function getMoveOrder(cols) {
